@@ -14,8 +14,8 @@ setup(name='MrMime',
       author = 'sLoPPydrive',
       description = 'Pokemon GO client library mimicing the original app',
       version = '0.9.0',
-      url = 'https://github.com/sLoPPydrive/MrMime',
-      download_url = "https://github.com/sLoPPydrive/MrMime/releases",
+      url = 'https://github.com/SenorKarlos/MrMime',
+      download_url = "https://github.com/SenorKarlos/MrMime/releases",
       packages = find_packages(),
       install_requires = reqs
       )
