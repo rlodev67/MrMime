@@ -12,7 +12,7 @@ from pgoapi.auth_ptc import AuthPtc
 from pgoapi.exceptions import AuthException, PgoapiError, \
     BannedAccountException, NoHashKeyException, NianticIPBannedException, NotLoggedInException
 from pgoapi.protos.pogoprotos.inventory.item.item_id_pb2 import *
-from pgoapi.utilities import get_cell_ids, f2i
+from pgoapi.utilities import get_cell_ids
 
 from mrmime import _mr_mime_cfg, avatar, mrmime_pgpool_enabled
 from mrmime.cyclicresourceprovider import CyclicResourceProvider
@@ -434,8 +434,8 @@ class POGOAccount(object):
         cell_ids = get_cell_ids(lat, lng)
         timestamps = [0, ] * len(cell_ids)
         responses = self.perform_request(
-            lambda req: req.get_map_objects(latitude=f2i(lat),
-                                            longitude=f2i(lng),
+            lambda req: req.get_map_objects(latitude=lat,
+                                            longitude=lng,
                                             since_timestamp_ms=timestamps,
                                             cell_id=cell_ids),
             get_inbox=True
@@ -504,8 +504,8 @@ class POGOAccount(object):
     def req_gym_get_info(self, gym_id, gym_lat, gym_lng, player_lat, player_lng):
         return self.perform_request(
             lambda req: req.gym_get_info(gym_id=gym_id,
-                                         player_lat_degrees=f2i(player_lat),
-                                         player_lng_degrees=f2i(player_lng),
+                                         player_lat_degrees=player_lat,
+                                         player_lng_degrees=player_lng,
                                          gym_lat_degrees=gym_lat,
                                          gym_lng_degrees=gym_lng))
 
