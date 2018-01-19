@@ -586,14 +586,7 @@ class POGOAccount(object):
         device_info['hardware_model'] = iphones[device]
         device_info['device_id'] = md5.hexdigest()
 
-        if device.startswith('iPhone10'):
-            ios_pool = ios11
-        elif device.startswith('iPhone9'):
-            ios_pool = ios11
-        elif device.startswith('iPhone8'):
-            ios_pool = ios11
-        else:
-            ios_pool = ios11
+        ios_pool = ios11
         device_info['firmware_type'] = ios_pool[pick_hash % len(ios_pool)]
 
         self.log_debug("Using an {} on iOS {} with device ID {}".format(device,
