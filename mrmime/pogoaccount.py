@@ -570,9 +570,7 @@ class POGOAccount(object):
             'iPhone10,6': 'D221AP'
         }
 
-        ios9 = ('9.0', '9.0.1', '9.0.2', '9.1', '9.2', '9.2.1',
-                '9.3', '9.3.1', '9.3.2', '9.3.3', '9.3.4', '9.3.5')
-        ios10 = ('10.0', '10.0.1', '10.0.2', '10.0.3', '10.1', '10.1.1')
+        
         ios11 = ('11.0.1', '11.0.2', '11.0.3', '11.1', '11.1.1')
 
         device_info = {
@@ -591,11 +589,10 @@ class POGOAccount(object):
         if device.startswith('iPhone10'):
             ios_pool = ios11
         elif device.startswith('iPhone9'):
-            ios_pool = ios10 + ios11
+            ios_pool = ios11
         elif device.startswith('iPhone8'):
-            ios_pool = ios9 + ios10 + ios11
+            ios_pool = ios11
         else:
-            ios_pool = ios9 + ios10
         device_info['firmware_type'] = ios_pool[pick_hash % len(ios_pool)]
 
         self.log_debug("Using an {} on iOS {} with device ID {}".format(device,
