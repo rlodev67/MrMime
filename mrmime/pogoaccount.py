@@ -551,10 +551,6 @@ class POGOAccount(object):
         pick_hash = int(md5.hexdigest(), 16)
 
         iphones = {
-            'iPhone5,1': 'N41AP',
-            'iPhone5,2': 'N42AP',
-            'iPhone5,3': 'N48AP',
-            'iPhone5,4': 'N49AP',
             'iPhone6,1': 'N51AP',
             'iPhone6,2': 'N53AP',
             'iPhone7,1': 'N56AP',
@@ -1048,9 +1044,12 @@ class POGOAccount(object):
 
     def _download_remote_config_version(self):
         # ===== DOWNLOAD_REMOTE_CONFIG_VERSION
-        responses = self.perform_request(lambda req: req.download_remote_config_version(platform=1,
-                                                                                        app_version=PGoApi.get_api_version()),
-                                         buddy_walked=False, get_inbox=False)
+        device_model_boot = self._generate_device_info()
+        responses = self.perform_request(lambda req: req.download_remote_config_version(
+                                                platform=1,
+                                                device_model=device_model_boot['device_model_boot'],
+                                                app_version=PGoApi.get_api_version()),
+                                                buddy_walked=False, get_inbox=False)
         if 'DOWNLOAD_REMOTE_CONFIG_VERSION' not in responses:
             raise Exception("Call to download_remote_config_version did not"
                             " return proper response.")
