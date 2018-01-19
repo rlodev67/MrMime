@@ -593,6 +593,7 @@ class POGOAccount(object):
         elif device.startswith('iPhone8'):
             ios_pool = ios11
         else:
+            ios_pool = ios11
         device_info['firmware_type'] = ios_pool[pick_hash % len(ios_pool)]
 
         self.log_debug("Using an {} on iOS {} with device ID {}".format(device,
