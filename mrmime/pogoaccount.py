@@ -613,6 +613,7 @@ class POGOAccount(object):
             if self._last_action > now + min_sleep:
                 time.sleep(self._last_action - now)
             else:
+                self.log_debug("Sleeping for {}".format(min_sleep))
                 time.sleep(min_sleep)
 
         req_method_list = copy.deepcopy(request._req_method_list)
