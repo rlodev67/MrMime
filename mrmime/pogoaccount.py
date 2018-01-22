@@ -449,7 +449,7 @@ class POGOAccount(object):
             encounter_id=encounter_id,
             spawn_point_id=spawn_point_id,
             player_latitude=latitude,
-            player_longitude=longitude), action=self.cfg['encounter_delay'])
+            player_longitude=longitude), action=float(self.cfg['encounter_delay']))
 
     def req_catch_pokemon(self, encounter_id, spawn_point_id, ball,
                           normalized_reticle_size, spin_modifier):
@@ -609,7 +609,7 @@ class POGOAccount(object):
         if action:
             now = time.time()
             # wait for the time required, or at least a configured min_request_delay (default 0.5)
-            min_sleep = self.cfg['min_request_delay']
+            min_sleep = float(self.cfg['min_request_delay'])
             if self._last_action > now + min_sleep:
                 time.sleep(self._last_action - now)
             else:
