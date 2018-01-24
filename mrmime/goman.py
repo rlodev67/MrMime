@@ -43,7 +43,7 @@ def pgoapi_init_noverify(self, provider=None, oauth2_refresh_token=None, usernam
 
 
 def auth_ptc_init_noverify(self, username=None, password=None, user_agent=None, timeout=None, locale=None):
-    __AuthPtc_init(self, username, password, user_agent, timeout, locale)
+    __AuthPtc_init(self, username, password, user_agent, timeout)
     self._session.verify = False
 
 
