@@ -611,10 +611,8 @@ class POGOAccount(object):
             # wait for the time required, or at least a configured min_request_delay (default 0.5)
             min_sleep = float(self.cfg['min_request_delay'])
             if self._last_action > now + min_sleep:
-                self.log_debug("Sleeping for {}".format(self._last_action - now))
                 time.sleep(self._last_action - now)
             else:
-                self.log_debug("Sleeping for {}".format(min_sleep))
                 time.sleep(min_sleep)
 
         req_method_list = copy.deepcopy(request._req_method_list)
