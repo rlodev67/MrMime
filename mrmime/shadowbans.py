@@ -28,8 +28,8 @@ COMMON_POKEMON = [
     218,    # Slugma
     320,    # Wailmer
     325,    # Spoink
-    339     # Barboach
-    293     # Whismur
+    339,    # Barboach
+    293,    # Whismur
     304     # Aron
 ]
 
