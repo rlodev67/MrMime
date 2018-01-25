@@ -30,7 +30,7 @@ COMMON_POKEMON = [
     304,    # Aron
     320,    # Wailmer
     325,    # Spoink
-    339    # Barboach
+    339     # Barboach
 ]
 
 
