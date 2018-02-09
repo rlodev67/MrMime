@@ -12,7 +12,7 @@ from pgoapi.auth_ptc import AuthPtc
 from pgoapi.exceptions import AuthException, PgoapiError, \
     BannedAccountException, NoHashKeyException, NianticIPBannedException, NotLoggedInException
 from pgoapi.protos.pogoprotos.inventory.item.item_id_pb2 import *
-from pgoapi.utilities import get_cell_ids, f2i
+from pgoapi.utilities import get_cell_ids
 
 from mrmime import _mr_mime_cfg, avatar, mrmime_pgpool_enabled
 from mrmime.cyclicresourceprovider import CyclicResourceProvider
@@ -434,8 +434,8 @@ class POGOAccount(object):
         cell_ids = get_cell_ids(lat, lng)
         timestamps = [0, ] * len(cell_ids)
         responses = self.perform_request(
-            lambda req: req.get_map_objects(latitude=f2i(lat),
-                                            longitude=f2i(lng),
+            lambda req: req.get_map_objects(latitude=lat,
+                                            longitude=lng,
                                             since_timestamp_ms=timestamps,
                                             cell_id=cell_ids),
             get_inbox=True
@@ -449,7 +449,7 @@ class POGOAccount(object):
             encounter_id=encounter_id,
             spawn_point_id=spawn_point_id,
             player_latitude=latitude,
-            player_longitude=longitude), action=2.25)
+            player_longitude=longitude), action=float(self.cfg['encounter_delay']))
 
     def req_catch_pokemon(self, encounter_id, spawn_point_id, ball,
                           normalized_reticle_size, spin_modifier):
@@ -504,8 +504,8 @@ class POGOAccount(object):
     def req_gym_get_info(self, gym_id, gym_lat, gym_lng, player_lat, player_lng):
         return self.perform_request(
             lambda req: req.gym_get_info(gym_id=gym_id,
-                                         player_lat_degrees=f2i(player_lat),
-                                         player_lng_degrees=f2i(player_lng),
+                                         player_lat_degrees=player_lat,
+                                         player_lng_degrees=player_lng,
                                          gym_lat_degrees=gym_lat,
                                          gym_lng_degrees=gym_lng))
 
@@ -570,10 +570,8 @@ class POGOAccount(object):
             'iPhone10,6': 'D221AP'
         }
 
-        ios9 = ('9.0', '9.0.1', '9.0.2', '9.1', '9.2', '9.2.1',
-                '9.3', '9.3.1', '9.3.2', '9.3.3', '9.3.4', '9.3.5')
-        ios10 = ('10.0', '10.0.1', '10.0.2', '10.0.3', '10.1', '10.1.1')
-        ios11 = ('11.0.1', '11.0.2', '11.0.3', '11.1', '11.1.1')
+        
+        ios11 = ('11.0.1', '11.0.2', '11.0.3', '11.1', '11.1.1', '11.1.2', '11.2', '11.2.1', '11.2.2', '11.2.5')
 
         device_info = {
             'device_brand': 'Apple',
@@ -588,14 +586,7 @@ class POGOAccount(object):
         device_info['hardware_model'] = iphones[device]
         device_info['device_id'] = md5.hexdigest()
 
-        if device.startswith('iPhone10'):
-            ios_pool = ios11
-        elif device.startswith('iPhone9'):
-            ios_pool = ios10 + ios11
-        elif device.startswith('iPhone8'):
-            ios_pool = ios9 + ios10 + ios11
-        else:
-            ios_pool = ios9 + ios10
+        ios_pool = ios11
         device_info['firmware_type'] = ios_pool[pick_hash % len(ios_pool)]
 
         self.log_debug("Using an {} on iOS {} with device ID {}".format(device,
@@ -608,11 +599,12 @@ class POGOAccount(object):
         # Wait until a previous user action gets completed
         if action:
             now = time.time()
-            # wait for the time required, or at least a half-second
-            if self._last_action > now + .5:
+            # wait for the time required, or at least a configured min_request_delay (default 0.5)
+            min_sleep = float(self.cfg['min_request_delay'])
+            if self._last_action > now + min_sleep:
                 time.sleep(self._last_action - now)
             else:
-                time.sleep(0.5)
+                time.sleep(min_sleep)
 
         req_method_list = copy.deepcopy(request._req_method_list)
 

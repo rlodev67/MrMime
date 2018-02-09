@@ -32,6 +32,8 @@ _mr_mime_cfg = {
     'request_retry_delay': 5,           # Number of seconds to wait between request retries. Will be shorter if multiple hash keys and/or proxies are available.
     # --- misc requests
     'scan_delay': 10,                   # Wait at least this long between 2 GMO requests
+    'encounter_delay': 2.25,            # Wait at least this long before performing encounter action
+    'min_request_delay': 0.5,           # Minimum time to wait between requests
     # --- logging
     'debug_log': False,                 # If MrMime should output debug logging
     'log_file': None,                   # If given MrMime also logs into this file
