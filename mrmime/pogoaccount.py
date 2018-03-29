@@ -25,7 +25,7 @@ login_lock = Lock()
 
 class POGOAccount(object):
     def __init__(self, auth_service, username, password, hash_key=None,
-                 hash_key_provider=None, proxy_url=None, proxy_url_ptc=None proxy_provider=None):
+                 hash_key_provider=None, proxy_url=None, proxy_url_ptc=None, proxy_provider=None):
 
         self.auth_service = auth_service
         self.username = username
