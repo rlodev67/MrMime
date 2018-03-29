@@ -25,7 +25,7 @@ login_lock = Lock()
 
 class POGOAccount(object):
     def __init__(self, auth_service, username, password, hash_key=None,
-                 hash_key_provider=None, proxy_url=None, proxy_provider=None):
+                 hash_key_provider=None, proxy_url=None, proxy_url_ptc=None proxy_provider=None):
 
         self.auth_service = auth_service
         self.username = username
@@ -48,6 +48,14 @@ class POGOAccount(object):
         self._proxy_url = None
         if proxy_provider and not proxy_provider.is_empty():
             self._proxy_provider = proxy_provider
+        elif proxy_url and proxy_ptc_url:
+            self._proxy_provider = CyclicResourceProvider(proxy_url)
+            self._proxy_url = proxy_url
+            self._proxy_provider_ptc = CyclicResourceProvider(proxy_url_ptc)
+            self._proxy_url_ptc = proxy_url_ptc
+        elif proxy_url_ptc:
+            self._proxy_provider_ptc = CyclicResourceProvider(proxy_url_ptc)
+            self._proxy_url_ptc = proxy_url_ptc
         elif proxy_url:
             self._proxy_provider = CyclicResourceProvider(proxy_url)
             self._proxy_url = proxy_url
@@ -131,6 +139,10 @@ class POGOAccount(object):
     @property
     def proxy_url(self):
         return self._proxy_url
+    
+    @property
+    def proxy_url_ptc(self):
+        return self._proxy_url_ptc
 
     @proxy_url.setter
     def proxy_url(self, new_proxy_url):
@@ -139,6 +151,14 @@ class POGOAccount(object):
         else:
             self._proxy_provider.set_single_resource(new_proxy_url)
         self._proxy_url = new_proxy_url
+        
+    @proxy_url_ptc.setter
+    def proxy_url_ptc(self, new_proxy_url):
+        if self._proxy_provider_ptc is None:
+            self._proxy_provider_ptc = CyclicResourceProvider(new_proxy_url)
+        else:
+            self._proxy_provider_ptc.set_single_resource(new_proxy_url)
+        self._proxy_url_ptc = new_proxy_url
 
     def set_position(self, lat, lng, alt):
         """Sets the location and altitude of the account"""
@@ -229,7 +249,7 @@ class POGOAccount(object):
             if not self.cfg['parallel_logins']:
                 login_lock.acquire()
 
-            # Set proxy if given.
+            # Set pogo proxy if given.
             if self._proxy_provider:
                 self._proxy_url = self._proxy_provider.next()
                 self.log_debug("Using proxy {}".format(self._proxy_url))
@@ -245,14 +265,15 @@ class POGOAccount(object):
                 try:
                     num_tries += 1
                     self.log_info("Login try {}.".format(num_tries))
-                    if self._proxy_url:
+                    # Set PTC proxy
+                    if self._proxy_url_ptc:
                         self._api.set_authentication(
                             provider=self.auth_service,
                             username=self.username,
                             password=self.password,
                             proxy_config={
-                                'http': self._proxy_url,
-                                'https': self._proxy_url
+                                'http': self._proxy_url_ptc,
+                                'https': self._proxy_url_ptc
                             })
                     else:
                         self._api.set_authentication(
@@ -265,6 +286,7 @@ class POGOAccount(object):
                     self.log_error(
                         'Failed to login. {} - Trying again in {} seconds.'.format(repr(ex),
                             self.cfg['login_delay']))
+                    self.rotate_proxy_ptc()
                     # Let the exception for the last try bubble up.
                     if num_tries >= self.cfg['login_retries']:
                         raise
@@ -303,6 +325,17 @@ class POGOAccount(object):
                     'https': self._proxy_url
                 }
                 self._api.set_proxy(proxy_config)
+
+    def rotate_proxy_ptc(self):
+        if self._proxy_provider_ptc:
+            old_proxy = self._proxy_url_ptc
+            self._proxy_url_ptc = self._proxy_provider_ptc.next()
+            if self._proxy_url_ptc != old_proxy:
+                self.log_info("Rotating proxy. Old: {}  New: {}".format(old_proxy, self._proxy_url_ptc))
+                proxy_config = {
+                    'http': self._proxy_url_ptc,
+                    'https': self._proxy_url_ptc
+                }
                 self._api._auth_provider.set_proxy(proxy_config)
 
     def rotate_hash_key(self):
